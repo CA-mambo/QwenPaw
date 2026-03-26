@@ -229,7 +229,7 @@ class AgentsDefaultsConfig(BaseModel):
 class EmbeddingConfig(BaseModel):
     """Embedding model configuration."""
 
-    model_config = ConfigDict(extra="allow")
+    model_config = ConfigDict(extra="ignore")
 
     backend: str = Field(
         default="openai",
@@ -258,6 +258,146 @@ class EmbeddingConfig(BaseModel):
     max_batch_size: int = Field(
         default=10,
         description="Maximum batch size for embedding",
+    )
+
+
+class ContextCompactConfig(BaseModel):
+    """Context compaction and token-counting configuration."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    token_count_model: str = Field(
+        default="default",
+        description="Model to use for token counting",
+    )
+
+    token_count_use_mirror: bool = Field(
+        default=False,
+        description="Whether to use HuggingFace mirror for token counting",
+    )
+
+    token_count_estimate_divisor: float = Field(
+        default=3.75,
+        ge=2,
+        le=5,
+        description=(
+            "Divisor for byte-based token estimation (byte_len / divisor)"
+        ),
+    )
+
+    context_compact_enabled: bool = Field(
+        default=True,
+        description="Whether to enable automatic context compaction",
+    )
+
+    memory_compact_ratio: float = Field(
+        default=0.75,
+        ge=0.3,
+        le=0.9,
+        description=(
+            "Compaction trigger threshold ratio: compaction is triggered when "
+            "the context length reaches this fraction of max_input_length"
+        ),
+    )
+
+    memory_reserve_ratio: float = Field(
+        default=0.1,
+        ge=0.05,
+        le=0.3,
+        description=(
+            "Context reserve threshold ratio: the most recent fraction of the "
+            "context is preserved after compaction to maintain continuity"
+        ),
+    )
+
+    compact_with_thinking_block: bool = Field(
+        default=True,
+        description="Whether to include thinking blocks when compacting",
+    )
+
+
+class ToolResultCompactConfig(BaseModel):
+    """Tool result compaction thresholds and retention configuration."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    enabled: bool = Field(
+        default=True,
+        description="Whether to enable tool result compaction",
+    )
+
+    recent_n: int = Field(
+        default=2,
+        ge=1,
+        le=10,
+        description="Number of recent messages to use recent_max_bytes for",
+    )
+
+    old_max_bytes: int = Field(
+        default=3000,
+        ge=100,
+        description=(
+            "Byte threshold for old messages in tool result compaction"
+        ),
+    )
+
+    recent_max_bytes: int = Field(
+        default=50000,
+        ge=1000,
+        description=(
+            "Byte threshold for recent messages in tool result compaction"
+        ),
+    )
+
+    retention_days: int = Field(
+        default=5,
+        ge=1,
+        le=10,
+        description="Number of days to retain tool result files",
+    )
+
+
+class MemorySummaryConfig(BaseModel):
+    """Memory summarization and search configuration."""
+
+    model_config = ConfigDict(extra="ignore")
+
+    memory_summary_enabled: bool = Field(
+        default=True,
+        description="Whether to enable memory summarization during compaction",
+    )
+
+    force_memory_search: bool = Field(
+        default=False,
+        description="Whether to force memory search on every turn",
+    )
+
+    force_max_results: int = Field(
+        default=1,
+        ge=1,
+        description=(
+            "Maximum number of results to return when force memory"
+            " search is enabled"
+        ),
+    )
+
+    force_min_score: float = Field(
+        default=0.3,
+        ge=0.0,
+        le=1.0,
+        description=(
+            "Minimum relevance score for results when force memory"
+            " search is enabled"
+        ),
+    )
+
+    rebuild_memory_index_on_start: bool = Field(
+        default=False,
+        description=(
+            "Whether to clear and rebuild the memory search index when the"
+            " agent starts. Set to False to skip re-indexing and only monitor"
+            " new file changes."
+        ),
     )
 
 
@@ -356,24 +496,6 @@ class AgentsRunningConfig(BaseModel):
             )
         return self
 
-    token_count_model: str = Field(
-        default="default",
-        description="Model to use for token counting",
-    )
-
-    token_count_estimate_divisor: float = Field(
-        default=3.75,
-        gt=1,
-        description=(
-            "Divisor for character-based token estimation " "(len / divisor)"
-        ),
-    )
-
-    token_count_use_mirror: bool = Field(
-        default=False,
-        description="Whether to use mirror token counting",
-    )
-
     max_input_length: int = Field(
         default=128 * 1024,  # 128K = 131072 tokens
         ge=1000,
@@ -382,57 +504,25 @@ class AgentsRunningConfig(BaseModel):
         ),
     )
 
-    memory_compact_ratio: float = Field(
-        default=0.75,
-        ge=0.3,
-        le=0.9,
-        description="Ratio of memory to compact when memory is full",
-    )
-
-    memory_reserve_ratio: float = Field(
-        default=0.1,
-        ge=0.05,
-        le=0.3,
-        description="Ratio of memory to reserve when compact memory",
-    )
-
-    tool_result_compact_recent_n: int = Field(
-        default=1,
-        ge=1,
-        le=10,
-        description="Number of recent messages to use recent_threshold for",
-    )
-
-    tool_result_compact_old_threshold: int = Field(
-        default=1000,
-        ge=100,
-        description="Character threshold for old messages "
-        "in tool result compaction",
-    )
-
-    tool_result_compact_recent_threshold: int = Field(
-        default=30000,
-        ge=1000,
-        description="Character threshold for recent messages "
-        "in tool result compaction",
-    )
-
-    tool_result_compact_retention_days: int = Field(
-        default=3,
-        ge=1,
-        le=10,
-        description="Number of days to retain tool result files",
-    )
-
     history_max_length: int = Field(
         default=10000,
         ge=1000,
         description="Maximum length for /history command output",
     )
 
-    compact_with_thinking_block: bool = Field(
-        default=True,
-        description="Whether to include thinking blocks when compact",
+    context_compact: ContextCompactConfig = Field(
+        default_factory=ContextCompactConfig,
+        description="Context compaction configuration",
+    )
+
+    tool_result_compact: ToolResultCompactConfig = Field(
+        default_factory=ToolResultCompactConfig,
+        description="Tool result compaction configuration",
+    )
+
+    memory_summary: MemorySummaryConfig = Field(
+        default_factory=MemorySummaryConfig,
+        description="Memory summarization and search configuration",
     )
 
     embedding_config: EmbeddingConfig = Field(
@@ -440,15 +530,27 @@ class AgentsRunningConfig(BaseModel):
         description="Embedding model configuration",
     )
 
+    memory_manager_backend: Literal["remelight"] = Field(
+        default="remelight",
+        description=(
+            "Memory manager backend type. "
+            "Currently only 'remelight' is supported."
+        ),
+    )
+
     @property
     def memory_compact_reserve(self) -> int:
         """Memory compact reserve size (tokens)."""
-        return int(self.max_input_length * self.memory_reserve_ratio)
+        return int(
+            self.max_input_length * self.context_compact.memory_reserve_ratio,
+        )
 
     @property
     def memory_compact_threshold(self) -> int:
         """Memory compact threshold size (tokens)."""
-        return int(self.max_input_length * self.memory_compact_ratio)
+        return int(
+            self.max_input_length * self.context_compact.memory_compact_ratio,
+        )
 
 
 class AgentsLLMRoutingConfig(BaseModel):
