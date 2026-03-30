@@ -76,7 +76,7 @@
         "role": "Alibaba Cloud Development Engineer"
       },
       "t2": {
-        "text": "I feel it's much easier to use than OpenClaw, and it's so much easier to get started! My suggestion is to release a version that natively supports multiple roles working together; I'll be using yours!",
+        "text": "Alibaba Tongyi’s move this time is very solid. CoPaw strengthens the “local + cloud” dual-deployment model, which is highly practical in today’s environment where privacy sensitivity and computing demands coexist. The open-source strategy also reflects Alibaba’s openness in building its AI ecosystem.",
         "role": "Developer"
       },
       "t3": {
@@ -88,11 +88,11 @@
         "role": "Developer"
       },
       "t5": {
-        "text": "MCP hot-swapping without restarting is the standout feature for agent workflows. That means you can extend CoPaw's toolset mid-session, no context break, no restart penalty. Skill hub + clawHub integration means the ecosystem compounds fast.",
+        "text": "MCP hot-swapping without restarting is the standout feature for agent workflows. That means you can extend CoPaw's toolset mid-session, no context break, no restart penalty. Skill Hub + Claw Hub integration means the ecosystem compounds fast.",
         "role": "Developer"
       },
       "t6": {
-        "text": "CoPaw is a better option; OpenClaw is too complicated and requires some understanding. However, CoPaw currently lacks multi-agent functionality, though it's similar in other aspects. For features it lacks, AI can write them.",
+        "text": "The CoPaw open-source project from Tongyi Lab is truly impressive! It’s great to see that people are not only enjoying successful experiences while using it, but also sharing amusing mishaps—like trying to tidy up the desktop and accidentally deleting files. Open-source AI agent frameworks are extremely important for advancing the entire industry, and I look forward to seeing more innovative applications built on CoPaw.",
         "role": "Developer"
       }
     }
@@ -133,11 +133,11 @@
         "description": "CoPaw helps you stay on top of social content by summarizing trending posts, new videos, and account patterns based on your interests."
       },
       "creative": {
-        "title": "Creative",
+        "title": "Creative & building",
         "description": "CoPaw can run overnight on your goals and support the entire content creation process from idea to draft."
       },
       "productivity": {
-        "title": "Creative & building",
+        "title": "Productivity",
         "description": "CoPaw boosts productivity by summarizing updates, organizing contacts, and analyzing personal logs for useful patterns."
       },
       "research": {

@@ -62,7 +62,7 @@ const TESTIMONIALS = [
   },
   {
     key: "t2",
-    name: "@Hubm",
+    name: "@Haunru",
     avatarSrc: "/communityIcon/2.svg",
     avatarAlt: "Hubm avatar",
   },
@@ -86,7 +86,7 @@ const TESTIMONIALS = [
   },
   {
     key: "t6",
-    name: "@xiangli",
+    name: "@shanchengzhineng",
     avatarSrc: "/communityIcon/6.svg",
     avatarAlt: "xiangli avatar",
   },

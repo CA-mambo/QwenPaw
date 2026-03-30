@@ -172,7 +172,7 @@ export function CopawHero() {
               }}
             >
               <motion.img
-                src="/copaw-console.png"
+                src="https://img.alicdn.com/imgextra/i3/O1CN016c7HKZ1bRBuniPqeT_!!6000000003461-2-tps-2278-1469.png"
                 alt="CoPaw console preview"
                 className="block h-full w-full rounded-t-2xl object-cover object-top shadow-[0px_6px_56px_0px_rgba(38,33,29,0.24)]"
                 loading="lazy"
