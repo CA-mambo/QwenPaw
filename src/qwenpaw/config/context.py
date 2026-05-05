@@ -81,3 +81,53 @@ def set_current_shell_command_timeout(timeout: float | None) -> None:
         timeout: Timeout in seconds.
     """
     current_shell_command_timeout.set(timeout)
+
+
+# Context variable to store the configured grep_search timeout
+current_grep_search_timeout: ContextVar[int | None] = ContextVar(
+    "current_grep_search_timeout",
+    default=None,
+)
+
+
+def get_current_grep_search_timeout() -> int | None:
+    """Get the configured default timeout for grep_search.
+
+    Returns:
+        Timeout in seconds, or None if not configured.
+    """
+    return current_grep_search_timeout.get()
+
+
+def set_current_grep_search_timeout(timeout: int | None) -> None:
+    """Set the configured default timeout for grep_search.
+
+    Args:
+        timeout: Timeout in seconds.
+    """
+    current_grep_search_timeout.set(timeout)
+
+
+# Context variable to store the configured glob_search timeout
+current_glob_search_timeout: ContextVar[int | None] = ContextVar(
+    "current_glob_search_timeout",
+    default=None,
+)
+
+
+def get_current_glob_search_timeout() -> int | None:
+    """Get the configured default timeout for glob_search.
+
+    Returns:
+        Timeout in seconds, or None if not configured.
+    """
+    return current_glob_search_timeout.get()
+
+
+def set_current_glob_search_timeout(timeout: int | None) -> None:
+    """Set the configured default timeout for glob_search.
+
+    Args:
+        timeout: Timeout in seconds.
+    """
+    current_glob_search_timeout.set(timeout)

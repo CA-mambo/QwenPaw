@@ -862,6 +862,26 @@ class AgentsRunningConfig(BaseModel):
         ),
     )
 
+    grep_search_timeout: int = Field(
+        default=30,
+        ge=1,
+        description=(
+            "Default timeout in seconds for grep_search. "
+            "The LLM may still override this per-call via the timeout "
+            "parameter."
+        ),
+    )
+
+    glob_search_timeout: int = Field(
+        default=15,
+        ge=1,
+        description=(
+            "Default timeout in seconds for glob_search. "
+            "The LLM may still override this per-call via the timeout "
+            "parameter."
+        ),
+    )
+
     @model_validator(mode="after")
     def validate_llm_retry_backoff(self) -> "AgentsRunningConfig":
         """Validate LLM retry backoff relationships."""
@@ -1160,6 +1180,15 @@ class MCPClientConfig(BaseModel):
     args: List[str] = Field(default_factory=list)
     env: Dict[str, str] = Field(default_factory=dict)
     cwd: str = ""
+    timeout: int = Field(
+        default=30,
+        ge=1,
+        le=300,
+        description=(
+            "Connection timeout in seconds for MCP client. "
+            "Used when establishing connection to the MCP server."
+        ),
+    )
 
     @model_validator(mode="before")
     @classmethod

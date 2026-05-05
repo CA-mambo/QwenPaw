@@ -16,7 +16,11 @@ from agentscope.message import TextBlock
 from agentscope.tool import ToolResponse
 
 from ...constant import WORKING_DIR
-from ...config.context import get_current_workspace_dir
+from ...config.context import (
+    get_current_workspace_dir,
+    get_current_grep_search_timeout,
+    get_current_glob_search_timeout,
+)
 from .file_io import _resolve_file_path
 
 # ---------------------------------------------------------------------------
@@ -482,6 +486,7 @@ async def grep_search(
     case_sensitive: bool = True,
     context_lines: int = 0,
     include_pattern: Optional[str] = None,
+    timeout: int = _GREP_TIMEOUT,
 ) -> ToolResponse:
     """Search file contents by pattern, recursively. Relative paths resolve
     from WORKING_DIR. Output format: ``path:line_number: content``.
@@ -501,7 +506,25 @@ async def grep_search(
         include_pattern (`str`, optional):
             Only search files whose **name** matches this glob
             (e.g. ``"*.py"``).  Defaults to None (all text files).
+        timeout (`int`, optional):
+            Maximum time in seconds for the search.  Defaults to 30.
+            If the default value is used, it will be overridden by the
+            agent-configured ``grep_search_timeout`` value (if set).
     """
+    # Allow LLM to pass timeout as string (JSON decoding artefact)
+    if isinstance(timeout, str):
+        try:
+            timeout = int(timeout)
+        except (ValueError, TypeError):
+            timeout = _GREP_TIMEOUT
+
+    # Apply agent-configured default when the caller used the hardcoded
+    # default (_GREP_TIMEOUT=30).  An explicit LLM-provided value != 30 is
+    # kept.
+    if timeout == _GREP_TIMEOUT:
+        configured = get_current_grep_search_timeout()
+        if configured is not None:
+            timeout = configured
     if not pattern:
         return _make_response("Error: No search `pattern` provided.")
 
@@ -536,13 +559,13 @@ async def grep_search(
     try:
         match_lines, status = await asyncio.wait_for(
             asyncio.to_thread(_worker),
-            timeout=_GREP_TIMEOUT,
+            timeout=timeout,
         )
     except asyncio.TimeoutError:
         cancel.set()
         await asyncio.sleep(0.05)
         return _make_response(
-            f"Error: Search timed out after {_GREP_TIMEOUT}s. "
+            f"Error: Search timed out after {timeout}s. "
             f"Try narrowing the search path or using a more specific pattern.",
         )
 
@@ -569,7 +592,7 @@ async def grep_search(
         result = "\n".join(match_lines)
         if status == "timeout":
             result += (
-                f"\n\n(Partial results — search timed out after {_GREP_TIMEOUT}s. "
+                f"\n\n(Partial results — search timed out after {timeout}s. "
                 f"Try narrowing the search scope.)"
             )
 
@@ -579,6 +602,7 @@ async def grep_search(
 async def glob_search(
     pattern: str,
     path: Optional[str] = None,
+    timeout: int = _GLOB_TIMEOUT,
 ) -> ToolResponse:
     """Find files matching a glob pattern (e.g. ``"*.py"``, ``"**/*.json"``).
     Relative paths resolve from WORKING_DIR.
@@ -588,7 +612,25 @@ async def glob_search(
             Glob pattern to match.
         path (`str`, optional):
             Root directory to search from.  Defaults to WORKING_DIR.
+        timeout (`int`, optional):
+            Maximum time in seconds for the search.  Defaults to 15.
+            If the default value is used, it will be overridden by the
+            agent-configured ``glob_search_timeout`` value (if set).
     """
+    # Allow LLM to pass timeout as string (JSON decoding artefact)
+    if isinstance(timeout, str):
+        try:
+            timeout = int(timeout)
+        except (ValueError, TypeError):
+            timeout = _GLOB_TIMEOUT
+
+    # Apply agent-configured default when the caller used the hardcoded
+    # default (_GLOB_TIMEOUT=15).  An explicit LLM-provided value != 15 is
+    # kept.
+    if timeout == _GLOB_TIMEOUT:
+        configured = get_current_glob_search_timeout()
+        if configured is not None:
+            timeout = configured
     if not pattern:
         return _make_response("Error: No glob `pattern` provided.")
 
@@ -608,13 +650,13 @@ async def glob_search(
     try:
         results, truncated = await asyncio.wait_for(
             asyncio.to_thread(_worker),
-            timeout=_GLOB_TIMEOUT,
+            timeout=timeout,
         )
     except asyncio.TimeoutError:
         cancel.set()
         await asyncio.sleep(0.05)
         return _make_response(
-            f"Error: Glob search timed out after {_GLOB_TIMEOUT}s. "
+            f"Error: Glob search timed out after {timeout}s. "
             f"Try a more specific pattern or narrower search path.",
         )
 

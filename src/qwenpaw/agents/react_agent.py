@@ -1287,6 +1287,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
             set_current_workspace_dir,
             set_current_recent_max_bytes,
             set_current_shell_command_timeout,
+            set_current_grep_search_timeout,
+            set_current_glob_search_timeout,
         )
 
         set_current_workspace_dir(self._workspace_dir)
@@ -1297,6 +1299,12 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         )
         set_current_shell_command_timeout(
             self._agent_config.running.shell_command_timeout,
+        )
+        set_current_grep_search_timeout(
+            self._agent_config.running.grep_search_timeout,
+        )
+        set_current_glob_search_timeout(
+            self._agent_config.running.glob_search_timeout,
         )
 
         # Process file and media blocks in messages

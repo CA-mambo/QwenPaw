@@ -248,6 +248,7 @@ class MCPClientManager:
                 args=client_config.args,
                 env=client_config.env,
                 cwd=client_config.cwd or None,
+                timeout=client_config.timeout,
             )
             setattr(client, "_qwenpaw_rebuild_info", rebuild_info)
             return client
@@ -261,6 +262,7 @@ class MCPClientManager:
             transport=client_config.transport,
             url=client_config.url,
             headers=headers or None,
+            timeout=client_config.timeout,
         )
         setattr(client, "_qwenpaw_rebuild_info", rebuild_info)
         return client
