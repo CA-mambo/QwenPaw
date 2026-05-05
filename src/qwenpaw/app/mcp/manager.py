@@ -91,7 +91,6 @@ class MCPClientManager:
         self,
         key: str,
         client_config: "MCPClientConfig",
-        timeout: float = 60.0,
     ) -> None:
         """Replace or add a client with new configuration.
 
@@ -101,8 +100,8 @@ class MCPClientManager:
         Args:
             key: Client identifier (from config)
             client_config: New client configuration
-            timeout: Connection timeout in seconds (default 60s)
         """
+        timeout = client_config.connection_timeout
         # 1. Create and connect new client outside lock (may be slow)
         logger.debug(f"Connecting new MCP client: {key}")
         new_client = self._build_client(client_config)
@@ -167,15 +166,14 @@ class MCPClientManager:
         self,
         key: str,
         client_config: "MCPClientConfig",
-        timeout: float = 60.0,
     ) -> None:
         """Add a new client (used during initial setup).
 
         Args:
             key: Client identifier
             client_config: Client configuration
-            timeout: Connection timeout in seconds (default 60s)
         """
+        timeout = client_config.connection_timeout
         client = self._build_client(client_config)
 
         try:
@@ -239,6 +237,8 @@ class MCPClientManager:
             "args": list(client_config.args),
             "env": dict(client_config.env),
             "cwd": client_config.cwd or None,
+            "connection_timeout": client_config.connection_timeout,
+            "execution_timeout": client_config.execution_timeout,
         }
 
         if client_config.transport == "stdio":
@@ -250,6 +250,8 @@ class MCPClientManager:
                 cwd=client_config.cwd or None,
             )
             setattr(client, "_qwenpaw_rebuild_info", rebuild_info)
+            setattr(client, "connection_timeout", client_config.connection_timeout)
+            setattr(client, "execution_timeout", client_config.execution_timeout)
             return client
 
         headers = client_config.headers
@@ -263,4 +265,6 @@ class MCPClientManager:
             headers=headers or None,
         )
         setattr(client, "_qwenpaw_rebuild_info", rebuild_info)
+        setattr(client, "connection_timeout", client_config.connection_timeout)
+        setattr(client, "execution_timeout", client_config.execution_timeout)
         return client

@@ -1160,6 +1160,21 @@ class MCPClientConfig(BaseModel):
     args: List[str] = Field(default_factory=list)
     env: Dict[str, str] = Field(default_factory=dict)
     cwd: str = ""
+    timeout: Optional[float] = Field(
+        default=None,
+        description="Legacy timeout field. If set, overrides both "
+        "connection_timeout and execution_timeout for backward compatibility.",
+    )
+    connection_timeout: float = Field(
+        default=60.0,
+        ge=1.0,
+        description="Timeout in seconds for establishing MCP client connection",
+    )
+    execution_timeout: float = Field(
+        default=300.0,
+        ge=1.0,
+        description="Timeout in seconds for MCP tool execution",
+    )
 
     @model_validator(mode="before")
     @classmethod
@@ -1201,6 +1216,22 @@ class MCPClientConfig(BaseModel):
             )
 
         return payload
+
+    @model_validator(mode="after")
+    def _apply_legacy_timeout(self):
+        """Apply legacy timeout field if set, for backward compatibility.
+
+        Only applies legacy timeout when the new fields are at their defaults
+        and no explicit values were provided.
+        """
+        if self.timeout is not None:
+            # Only override if the fields are still at default values
+            # (Pydantic v2: we check if they match the defaults)
+            if self.connection_timeout == 60.0:
+                object.__setattr__(self, "connection_timeout", self.timeout)
+            if self.execution_timeout == 300.0:
+                object.__setattr__(self, "execution_timeout", self.timeout)
+        return self
 
     @model_validator(mode="after")
     def _validate_transport_config(self):
