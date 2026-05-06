@@ -51,7 +51,7 @@ The legacy `timeout` field is fully supported:
 # → connection_timeout=120, execution_timeout=120
 
 # New config (recommended):
-{"name": "my_mcp", "command": "npx", "args": ["-y", "some-mcp"], 
+{"name": "my_mcp", "command": "npx", "args": ["-y", "some-mcp"],
  "connection_timeout": 60, "execution_timeout": 300}
 
 # Mixed (new fields take precedence):

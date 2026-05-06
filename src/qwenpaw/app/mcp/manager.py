@@ -69,11 +69,7 @@ class MCPClientManager:
             List of connected MCP client instances
         """
         async with self._lock:
-            return [
-                client
-                for client in self._clients.values()
-                if client is not None
-            ]
+            return [client for client in self._clients.values() if client is not None]
 
     async def get_client(self, key: str) -> Any | None:
         """Get a specific active MCP client by key.

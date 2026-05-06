@@ -7,6 +7,7 @@ Tests the new config parsing and timeout passing logic:
 3. MCPClientManager: uses connection_timeout from config
 4. QwenPawAgent: passes execution_timeout to toolkit.register_mcp_client
 """
+
 # pylint: disable=protected-access
 # pylint: disable=unused-argument
 # pylint: disable=reimported
@@ -22,11 +23,11 @@ import pytest
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from qwenpaw.app.mcp.manager import MCPClientManager
-from qwenpaw.config.config import MCPClientConfig
-
+from qwenpaw.app.mcp.manager import MCPClientManager  # noqa: E402
+from qwenpaw.config.config import MCPClientConfig  # noqa: E402
 
 # === Original Sync Tests (converted to pytest) ===
+
 
 def test_default_timeouts():
     """Test that default timeouts are correct."""
@@ -119,6 +120,7 @@ def test_rebuild_info_contains_timeouts():
 
 # === Original Async Tests (converted to pytest.mark.asyncio) ===
 
+
 @pytest.mark.asyncio
 async def test_manager_uses_connection_timeout():
     """Test that MCPClientManager uses connection_timeout from config."""
@@ -170,10 +172,11 @@ async def test_register_mcp_clients_execution_timeout():
 
 # === New Async Mock Tests ===
 
+
 @pytest.mark.asyncio
 async def test_connection_timeout_behavior():
     """Test connection timeout behavior when client hangs during connect.
-    
+
     Mock manager._build_client -> client.connect to simulate a hang.
     Verify the manager handles it (or raises TimeoutError).
     """
@@ -220,7 +223,7 @@ async def test_execution_timeout_passed_to_toolkit():
     # Simulate what register_mcp_clients does:
     # It reads execution_timeout from the client and passes it to toolkit
     execution_timeout = getattr(mock_mcp_client, "execution_timeout", 300.0)
-    
+
     # Call the toolkit method as the real code would
     mock_toolkit.register_mcp_client(
         mock_mcp_client,
@@ -249,10 +252,10 @@ async def test_legacy_config_safety():
 
     # Verify connection_timeout is preserved
     assert cfg.connection_timeout == 90.0
-    
+
     # Verify execution_timeout uses default (not overridden by legacy logic)
     assert cfg.execution_timeout == 300.0
-    
+
     # Verify legacy timeout field remains None
     assert cfg.timeout is None
 
@@ -260,7 +263,7 @@ async def test_legacy_config_safety():
     client = MCPClientManager._build_client(cfg)
     assert client.connection_timeout == 90.0
     assert client.execution_timeout == 300.0
-    
+
     # Verify rebuild_info also has correct values
     rebuild_info = getattr(client, "_qwenpaw_rebuild_info", None)
     assert rebuild_info is not None
