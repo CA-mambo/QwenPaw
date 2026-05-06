@@ -198,7 +198,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
 
         # Configure context manager memory if available
         if self.context_manager is not None:
-            self.memory: "AgentContext" = self.context_manager.get_agent_context()
+            self.memory: "AgentContext" = (
+                self.context_manager.get_agent_context()
+            )
             logger.debug("Context manager configured")
 
         # Setup command handler
@@ -377,7 +379,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         """
         # Get agent_id from request_context
         agent_id = (
-            self._request_context.get("agent_id") if self._request_context else None
+            self._request_context.get("agent_id")
+            if self._request_context
+            else None
         )
 
         # Check if heartbeat is enabled in agent config
@@ -411,7 +415,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         """Register pre-reasoning and pre-acting hooks."""
         # Bootstrap hook - checks BOOTSTRAP.md on first interaction
         # Use workspace_dir if available, else fallback to WORKING_DIR
-        working_dir = self._workspace_dir if self._workspace_dir else WORKING_DIR
+        working_dir = (
+            self._workspace_dir if self._workspace_dir else WORKING_DIR
+        )
         bootstrap_hook = BootstrapHook(
             working_dir=working_dir,
             language=self._language,
@@ -847,7 +853,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                     "</previous-assistant-tail>"
                 )
             logger.info(
-                "Auto-continue: text-only (%d/%d); hint + _reasoning " "tool_choice=%r",
+                "Auto-continue: text-only (%d/%d); hint + _reasoning "
+                "tool_choice=%r",
                 extra,
                 self._AUTO_CONTINUE_MAX_EXTRA,
                 tool_choice,
@@ -858,7 +865,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                 next_msg = await super()._reasoning(tool_choice=tool_choice)
             except Exception:
                 logger.warning(
-                    "Auto-continue extra _reasoning failed; " "keeping prior response",
+                    "Auto-continue extra _reasoning failed; "
+                    "keeping prior response",
                     exc_info=True,
                 )
                 break
@@ -925,7 +933,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         """
         # --- Proactive filtering layer ---
         should_strip = (
-            not get_active_model_supports_multimodal() or self._model_rejects_media()
+            not get_active_model_supports_multimodal()
+            or self._model_rejects_media()
         )
         if should_strip:
             if self._uses_request_time_media_normalization():
@@ -1027,7 +1036,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         """
         # --- Proactive filtering layer ---
         should_strip = (
-            not get_active_model_supports_multimodal() or self._model_rejects_media()
+            not get_active_model_supports_multimodal()
+            or self._model_rejects_media()
         )
         if should_strip:
             if self._uses_request_time_media_normalization():
@@ -1181,7 +1191,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         filtered = [
             block
             for block in msg.content
-            if not (isinstance(block, dict) and block.get("type") == "tool_use")
+            if not (
+                isinstance(block, dict) and block.get("type") == "tool_use"
+            )
         ]
 
         n_removed = len(msg.content) - len(filtered)
@@ -1241,7 +1253,10 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
             new_content = []
             stripped_this_message = 0
             for block in msg.content:
-                if isinstance(block, dict) and block.get("type") in media_types:
+                if (
+                    isinstance(block, dict)
+                    and block.get("type") in media_types
+                ):
                     total_stripped += 1
                     stripped_this_message += 1
                     continue
@@ -1256,7 +1271,8 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                         item
                         for item in block["output"]
                         if not (
-                            isinstance(item, dict) and item.get("type") in media_types
+                            isinstance(item, dict)
+                            and item.get("type") in media_types
                         )
                     ]
                     stripped_count = original_len - len(block["output"])
@@ -1317,7 +1333,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
 
         # Check if message is a system command
         last_msg = msg[-1] if isinstance(msg, list) else msg
-        query = last_msg.get_text_content() if isinstance(last_msg, Msg) else None
+        query = (
+            last_msg.get_text_content() if isinstance(last_msg, Msg) else None
+        )
 
         if self.command_handler.is_command(query):
             logger.info(f"Received command: {query}")

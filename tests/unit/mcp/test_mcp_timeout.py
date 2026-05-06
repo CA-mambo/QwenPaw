@@ -21,7 +21,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Add src to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
+sys.path.insert(
+    0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src")
+)
 
 from qwenpaw.app.mcp.manager import MCPClientManager  # noqa: E402
 from qwenpaw.config.config import MCPClientConfig  # noqa: E402
@@ -139,7 +141,9 @@ async def test_manager_uses_connection_timeout():
     mock_client.connect = AsyncMock()
     mock_client.close = AsyncMock()
 
-    with patch.object(MCPClientManager, "_build_client", return_value=mock_client):
+    with patch.object(
+        MCPClientManager, "_build_client", return_value=mock_client
+    ):
         await manager._add_client("test_key", cfg)
 
     # Verify connect was called (timeout is handled by asyncio.wait_for)
@@ -166,7 +170,9 @@ async def test_register_mcp_clients_execution_timeout():
     mock_client_no_timeout.name = "test_mcp_2"
     del mock_client_no_timeout.execution_timeout
 
-    timeout_fallback = getattr(mock_client_no_timeout, "execution_timeout", 300.0)
+    timeout_fallback = getattr(
+        mock_client_no_timeout, "execution_timeout", 300.0
+    )
     assert timeout_fallback == 300.0
 
 
@@ -198,7 +204,9 @@ async def test_connection_timeout_behavior():
     mock_client.connect = AsyncMock(side_effect=hang_forever)
     mock_client.close = AsyncMock()
 
-    with patch.object(MCPClientManager, "_build_client", return_value=mock_client):
+    with patch.object(
+        MCPClientManager, "_build_client", return_value=mock_client
+    ):
         with pytest.raises((TimeoutError, asyncio.TimeoutError)):
             await manager._add_client("hang_key", cfg)
 

@@ -69,7 +69,11 @@ class MCPClientManager:
             List of connected MCP client instances
         """
         async with self._lock:
-            return [client for client in self._clients.values() if client is not None]
+            return [
+                client
+                for client in self._clients.values()
+                if client is not None
+            ]
 
     async def get_client(self, key: str) -> Any | None:
         """Get a specific active MCP client by key.
@@ -246,8 +250,12 @@ class MCPClientManager:
                 cwd=client_config.cwd or None,
             )
             setattr(client, "_qwenpaw_rebuild_info", rebuild_info)
-            setattr(client, "connection_timeout", client_config.connection_timeout)
-            setattr(client, "execution_timeout", client_config.execution_timeout)
+            setattr(
+                client, "connection_timeout", client_config.connection_timeout
+            )
+            setattr(
+                client, "execution_timeout", client_config.execution_timeout
+            )
             return client
 
         headers = client_config.headers
