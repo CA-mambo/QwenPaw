@@ -504,7 +504,9 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                     self._mcp_clients[i] = recovered_client
                     try:
                         recovered_execution_timeout = getattr(
-                            recovered_client, "execution_timeout", 300.0
+                            recovered_client,
+                            "execution_timeout",
+                            300.0,
                         )
                         await self.toolkit.register_mcp_client(
                             recovered_client,
