@@ -1162,8 +1162,10 @@ class MCPClientConfig(BaseModel):
     cwd: str = ""
     timeout: Optional[float] = Field(
         default=None,
-        description="Legacy timeout field. If set, overrides both "
-        "connection_timeout and execution_timeout for backward compatibility.",
+        description=(
+            "Legacy timeout field. If set, overrides both connection_timeout "
+            "and execution_timeout for backward compatibility."
+        ),
     )
     connection_timeout: float = Field(
         default=60.0,

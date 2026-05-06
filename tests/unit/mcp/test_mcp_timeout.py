@@ -10,6 +10,7 @@ Tests the new config parsing and timeout passing logic:
 # pylint: disable=protected-access
 # pylint: disable=unused-argument
 # pylint: disable=reimported
+# pylint: disable=wrong-import-position
 
 import sys
 import os
@@ -21,8 +22,8 @@ import pytest
 # Add src to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "src"))
 
-from qwenpaw.config.config import MCPClientConfig
 from qwenpaw.app.mcp.manager import MCPClientManager
+from qwenpaw.config.config import MCPClientConfig
 
 
 # === Original Sync Tests (converted to pytest) ===
