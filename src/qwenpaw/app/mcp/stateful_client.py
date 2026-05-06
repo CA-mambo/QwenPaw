@@ -65,6 +65,7 @@ class StdIOStatefulClient(StatefulClientBase):
             "replace",
         ] = "strict",
         read_timeout_seconds: float = 60 * 5,
+        **kwargs: Any,  # Added for backward compatibility and custom extensions (e.g., connection_timeout, execution_timeout)
     ) -> None:
         """Initialize the StdIO MCP client.
 
@@ -89,6 +90,12 @@ class StdIOStatefulClient(StatefulClientBase):
             )
 
         self.name = name
+        self.read_timeout_seconds = read_timeout_seconds
+        
+        # Extract and store custom timeout fields (QwenPaw specific extensions)
+        self.connection_timeout = kwargs.get("connection_timeout", 60.0)
+        self.execution_timeout = kwargs.get("execution_timeout", 300.0)
+        
         self.server_params = StdioServerParameters(
             command=command,
             args=args or [],
@@ -379,6 +386,10 @@ class HttpStatefulClient(StatefulClientBase):
         self.sse_read_timeout = sse_read_timeout
         self.read_timeout_seconds = sse_read_timeout
         self.client_kwargs = client_kwargs
+        
+        # Extract and store custom timeout fields (QwenPaw specific extensions)
+        self.connection_timeout = client_kwargs.get("connection_timeout", 60.0)
+        self.execution_timeout = client_kwargs.get("execution_timeout", 300.0)
 
         # Lifecycle management
         self._lifecycle_task: asyncio.Task | None = None

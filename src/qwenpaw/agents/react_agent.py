@@ -244,11 +244,13 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                 }
                 # Only execute_shell_command supports async_execution
                 async_execution_tools = {
-                    "execute_shell_command": builtin_tools.get(
-                        "execute_shell_command",
-                    ).async_execution
-                    if "execute_shell_command" in builtin_tools
-                    else False,
+                    "execute_shell_command": (
+                        builtin_tools.get(
+                            "execute_shell_command",
+                        ).async_execution
+                        if "execute_shell_command" in builtin_tools
+                        else False
+                    ),
                 }
         except Exception as e:
             logger.warning(
@@ -488,11 +490,12 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
         """
         for i, client in enumerate(self._mcp_clients):
             client_name = getattr(client, "name", repr(client))
+            execution_timeout = getattr(client, "execution_timeout", 300.0)
             try:
                 await self.toolkit.register_mcp_client(
                     client,
                     namesake_strategy=namesake_strategy,
-                    execution_timeout=client.read_timeout_seconds,
+                    execution_timeout=execution_timeout,
                 )
             except (ClosedResourceError, asyncio.CancelledError) as error:
                 if self._should_propagate_cancelled_error(error):
@@ -506,10 +509,15 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                 if recovered_client is not None:
                     self._mcp_clients[i] = recovered_client
                     try:
+                        recovered_execution_timeout = getattr(
+                            recovered_client,
+                            "execution_timeout",
+                            300.0,
+                        )
                         await self.toolkit.register_mcp_client(
                             recovered_client,
                             namesake_strategy=namesake_strategy,
-                            execution_timeout=client.read_timeout_seconds,
+                            execution_timeout=recovered_execution_timeout,
                         )
                         continue
                     except asyncio.CancelledError as recover_error:
@@ -640,6 +648,16 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                     cwd=rebuild_info.get("cwd"),
                 )
                 setattr(rebuilt_client, "_qwenpaw_rebuild_info", rebuild_info)
+                setattr(
+                    rebuilt_client,
+                    "connection_timeout",
+                    rebuild_info.get("connection_timeout", 60.0),
+                )
+                setattr(
+                    rebuilt_client,
+                    "execution_timeout",
+                    rebuild_info.get("execution_timeout", 300.0),
+                )
                 return rebuilt_client
 
             raw_headers = rebuild_info.get("headers") or {}
@@ -655,6 +673,16 @@ class QwenPawAgent(ToolGuardMixin, ReActAgent):
                 headers=headers,
             )
             setattr(rebuilt_client, "_qwenpaw_rebuild_info", rebuild_info)
+            setattr(
+                rebuilt_client,
+                "connection_timeout",
+                rebuild_info.get("connection_timeout", 60.0),
+            )
+            setattr(
+                rebuilt_client,
+                "execution_timeout",
+                rebuild_info.get("execution_timeout", 300.0),
+            )
             return rebuilt_client
         except Exception:  # pylint: disable=broad-except
             return None
