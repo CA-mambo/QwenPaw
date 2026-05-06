@@ -1168,7 +1168,9 @@ class MCPClientConfig(BaseModel):
     connection_timeout: float = Field(
         default=60.0,
         ge=1.0,
-        description="Timeout in seconds for establishing MCP client connection",
+        description=(
+            "Timeout in seconds for establishing MCP client connection"
+        ),
     )
     execution_timeout: float = Field(
         default=300.0,

@@ -7,6 +7,9 @@ Tests the new config parsing and timeout passing logic:
 3. MCPClientManager: uses connection_timeout from config
 4. QwenPawAgent: passes execution_timeout to toolkit.register_mcp_client
 """
+# pylint: disable=protected-access
+# pylint: disable=unused-argument
+# pylint: disable=reimported
 
 import sys
 import os
@@ -204,8 +207,6 @@ async def test_execution_timeout_passed_to_toolkit():
     """Verify register_mcp_clients passes the correct execution_timeout
     to toolkit.register_mcp_client via mock.
     """
-    from qwenpaw.app.mcp.manager import MCPClientManager
-    
     # Create a mock toolkit
     mock_toolkit = MagicMock()
     mock_toolkit.register_mcp_client = MagicMock()
