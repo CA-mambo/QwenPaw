@@ -8,14 +8,15 @@ export function getAgentDisplayName(
   agent: Pick<AgentSummary, "id" | "name">,
   t: TFunction,
 ): string {
-  // Prioritize user-defined name
-  if (agent.name) {
-    return agent.name;
-  }
-  // Fallback to localized default name if ID is default
+  // For default agent, preserve i18n unless explicitly customized
   if (agent.id === DEFAULT_AGENT_ID) {
+    // If name is customized (not the default placeholder), show custom name
+    if (agent.name && agent.name !== "Default Agent") {
+      return agent.name;
+    }
+    // Otherwise, fall back to localized default name
     return t("agent.defaultDisplayName");
   }
-  // Finally fallback to ID
-  return agent.id;
+  // For other agents, use user-defined name or fallback to id
+  return agent.name || agent.id;
 }
